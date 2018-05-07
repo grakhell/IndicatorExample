@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val recyclerView = this.recycler
-        var items = ArrayList<Int>()
+        val items = ArrayList<Int>()
         items.add(Color.RED)
         items.add(Color.GREEN)
         items.add(Color.BLUE)
@@ -27,5 +27,8 @@ class MainActivity : AppCompatActivity() {
         val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(recyclerView)
         this.indicator.attachToRecyclerView(recyclerView)
+        items.add(Color.LTGRAY)
+        items.add(Color.MAGENTA)
+        recyclerView.adapter.notifyDataSetChanged()
     }
 }

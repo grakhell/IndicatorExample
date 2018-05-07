@@ -2,6 +2,7 @@ package ru.mininn.recyclerindicator
 
 import android.content.Context
 import android.graphics.PorterDuff
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.transition.ChangeBounds
@@ -9,7 +10,6 @@ import android.transition.Fade
 import android.transition.TransitionManager
 import android.transition.TransitionSet
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -24,22 +24,23 @@ class RecyclerIndicator(context: Context?, attrs: AttributeSet?) : LinearLayout(
     private val INDICATOR_SIZE = 10
     private val INDICATOR_MARGIN = 2
 
+    private lateinit var recyclerView: RecyclerView
     private var currentPosition = -1
-    private var indicatorCount = 0
-    private var recyclerView: RecyclerView? = null
-    var maxItemCount: Int = 5
-    var indicatorSize = 10
-    var indicatorMargin = 2
-    var drawable: Int = R.drawable.dot
+    //private var indicatorCount = 0
+    private var maxItemCount: Int = 5
+    private var indicatorSize = 10
+    private var indicatorMargin = 2
+    private var drawable: Int = R.drawable.dot
 
-    fun attachToRecyclerView(recyclerView: RecyclerView) {
-        this.recyclerView = recyclerView
+    fun attachToRecyclerView(rv: RecyclerView) {
+        this.recyclerView = rv
         initTransitions()
-        addAdapterDataObserver(recyclerView)
-        addScrollListener(recyclerView)
+        addAdapterDataObserver(rv)
+        addScrollListener(rv)
         val displayMetrics = resources.displayMetrics
         this.indicatorSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, INDICATOR_SIZE.toFloat(), displayMetrics).toInt()
         this.indicatorMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, INDICATOR_MARGIN.toFloat(), displayMetrics).toInt()
+        updateIndicatorsCount(recyclerView.adapter.itemCount)
     }
 
     fun setPosition(position: Int) {
@@ -53,10 +54,10 @@ class RecyclerIndicator(context: Context?, attrs: AttributeSet?) : LinearLayout(
     }
 
     fun updateIndicatorsCount(itemCount: Int) {
+        removeAllViews()
         var x = 0
         while (x < itemCount) {
             addIndicator(x)
-            Log.d("asdasd", "x $x")
             x++
         }
     }
@@ -117,8 +118,8 @@ class RecyclerIndicator(context: Context?, attrs: AttributeSet?) : LinearLayout(
     private fun addIndicator(position: Int) {
         val view = View(context)
         val params = ViewGroup.MarginLayoutParams(indicatorSize, indicatorSize)
-        val adapter = recyclerView!!.adapter as IndicatorAdapter
-        view.background = context.resources.getDrawable(drawable).mutate()
+        val adapter = recyclerView.adapter as IndicatorAdapter
+        view.background = ContextCompat.getDrawable(context,drawable)?.mutate()
         view.background.setColorFilter(adapter.getItemColor(position), PorterDuff.Mode.MULTIPLY)
         params.leftMargin = indicatorMargin
         params.rightMargin = indicatorMargin
@@ -156,12 +157,11 @@ class RecyclerIndicator(context: Context?, attrs: AttributeSet?) : LinearLayout(
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
-                val position = if ((recyclerView!!.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() > currentPosition) {
+                val position = if ((recyclerView?.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() > currentPosition) {
                     (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
                 } else {
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                 }
-
                 if (position != currentPosition && position >= 0) {
                     setPosition(position)
                 }
