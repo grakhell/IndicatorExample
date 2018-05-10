@@ -6,7 +6,7 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <ru.mininn.recyclerindicator.RecyclerIndicator
+    <ru.mininn.recyclerindicator.IndicatorView
         android:id="@+id/indicator"
         android:gravity="center"
         android:layout_width="match_parent"

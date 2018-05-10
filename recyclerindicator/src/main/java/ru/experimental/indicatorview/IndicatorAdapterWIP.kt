@@ -1,6 +1,6 @@
-package ru.mininn.recyclerindicator
+package ru.experimental.indicatorview
 
-interface IndicatorAdapter {
+interface IndicatorAdapterWIP {
 
     fun getIndicatorCount(): Int
 
