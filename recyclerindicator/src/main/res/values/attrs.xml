@@ -3,5 +3,8 @@
     <declare-styleable name="IndicatorBarLayout">
     </declare-styleable>
     <declare-styleable name="IndicatorView">
+        <attr name="drawable" format="integer"/>
+        <attr name="color" format="integer"/>
+        <attr name="size" format="integer"/>
     </declare-styleable>
 </resources>
