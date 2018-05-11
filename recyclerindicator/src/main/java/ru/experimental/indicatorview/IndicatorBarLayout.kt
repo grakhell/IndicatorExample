@@ -117,11 +117,10 @@ class IndicatorBarLayout(context: Context?, attrs: AttributeSet?) : LinearLayout
     }
 
     private fun addIndicator(position: Int) {
-        val view = View(context)
+        val view = IndicatorView(context)
         val params = ViewGroup.MarginLayoutParams(indicatorSize, indicatorSize)
         val adapter = recyclerView.adapter as IndicatorAdapterWIP
-        view.background = ContextCompat.getDrawable(context,drawable)?.mutate()
-        view.background.setColorFilter(adapter.getItemColor(position), PorterDuff.Mode.MULTIPLY)
+        view.setIndicator(adapter.getItemColor(position),drawable,indicatorSize,PorterDuff.Mode.MULTIPLY)
         params.leftMargin = indicatorMargin
         params.rightMargin = indicatorMargin
         params.topMargin = indicatorMargin

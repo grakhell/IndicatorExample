@@ -14,9 +14,10 @@ import kotlin.math.min
 
 class IndicatorView(context: Context): View(context) {
 
-    private var color:Int = Color.BLACK
-    private var drawable:Drawable? = ContextCompat.getDrawable(context,R.drawable.dot)
-    private var size = 10
+    var color:Int = Color.BLACK
+    var drawable:Drawable? = ContextCompat.getDrawable(context,R.drawable.dot)
+    var size = 10
+    var porterDuffMode:PorterDuff.Mode = PorterDuff.Mode.DST_ATOP
 
     constructor(context: Context, attributes: AttributeSet ):this(context)
     {
@@ -25,29 +26,30 @@ class IndicatorView(context: Context): View(context) {
                 R.styleable.IndicatorView,
         0,0)
         try {
-            color = a.getInt(R.styleable.IndicatorView_color,Color.BLACK)
+            color = a.getInt(R.styleable.IndicatorView_drawColor,Color.BLACK)
             size = a.getInt(R.styleable.IndicatorView_size, 10)
-            drawable = ContextCompat.getDrawable(context,
-                    a.getInt(R.styleable.IndicatorView_drawable,R.drawable.dot))
+            drawable = a.getDrawable(R.styleable.IndicatorView_drawable)
         }
         finally {
             a.recycle()
         }
     }
 
-    fun setIndicator(Color:Int, Drawable:Int, Size:Int)
+    fun setIndicator(Color:Int, Drawable:Int, Size:Int, Mode:PorterDuff.Mode)
     {
         color = Color
         drawable = ContextCompat.getDrawable(context,Drawable)?:
                 ContextCompat.getDrawable(context,R.drawable.dot)
         size = Size
+        porterDuffMode = Mode
         invalidate()
         requestLayout()
     }
 
     override fun onDraw(canvas: Canvas?) {
         drawable?.mutate()
-        drawable?.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
+        drawable?.setColorFilter(color, porterDuffMode)
+        drawable?.bounds = canvas?.clipBounds
         drawable?.draw(canvas)
     }
 
