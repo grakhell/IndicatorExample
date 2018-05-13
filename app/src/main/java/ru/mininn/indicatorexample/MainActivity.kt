@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         items.add(Color.DKGRAY)
         items.add(Color.CYAN)
         items.add(Color.CYAN)
-        recyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL, false)
+        recyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL, false)
         recyclerView.adapter = ColorAdapter(items)
         val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(recyclerView)

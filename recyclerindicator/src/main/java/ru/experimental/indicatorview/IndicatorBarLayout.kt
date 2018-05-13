@@ -1,8 +1,9 @@
 package ru.experimental.indicatorview
 
 import android.content.Context
+import android.content.res.TypedArray
+import android.graphics.Color
 import android.graphics.PorterDuff
-import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.transition.ChangeBounds
@@ -17,21 +18,40 @@ import android.widget.LinearLayout
 import ru.mininn.recyclerindicator.R
 import kotlin.math.abs
 
-class IndicatorBarLayout(context: Context?, attrs: AttributeSet?) : LinearLayout(context, attrs) {
-    private val SCALE_STATE_NORMAL = 0.5f
-    private val SCALE_STATE_SELECTED = 1f
-    private val SCALE_STATE_SMALL = 0.2f
-    private val SCALE_STATE_INVISIBLE = 0.0f
-    private val INDICATOR_SIZE = 10
-    private val INDICATOR_MARGIN = 2
+class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
+    val SCALE_STATE_NORMAL = 0.5f
+    val SCALE_STATE_SELECTED = 1f
+    val SCALE_STATE_SMALL = 0.2f
+    val SCALE_STATE_INVISIBLE = 0.0f
+    //private val INDICATOR_SIZE = 10
+    //private val INDICATOR_MARGIN = 2
 
     private lateinit var recyclerView: RecyclerView
-    private var currentPosition = -1
 
-    private var maxItemCount: Int = 5
-    private var indicatorSize = 10
+    private var currentPosition = -1
+    private var maxItemCount: Int = 10
+    private var indicatorSize = 5
     private var indicatorMargin = 2
-    private var drawable: Int = R.drawable.dot
+    private var defaultDrawable: Int = R.drawable.dot
+    private var defaultColor:Int = Color.BLACK
+
+    constructor(context: Context, attrs: AttributeSet?):this(context)
+    {
+        val a: TypedArray = context.obtainStyledAttributes(
+                attrs,
+                R.styleable.IndicatorBarLayout,
+                0,0)
+
+        try {
+            currentPosition = a.getInt(R.styleable.IndicatorBarLayout_currentPosition,-1)
+            maxItemCount = a.getInt(R.styleable.IndicatorBarLayout_maxVisibleItemCount, 5)
+            indicatorSize = a.getInt(R.styleable.IndicatorBarLayout_indicatorSize, 10)
+            indicatorMargin = a.getInt(R.styleable.IndicatorBarLayout_indicatorMargin, 2)
+        }
+        finally {
+            a.recycle()
+        }
+    }
 
     fun attachToRecyclerView(rv: RecyclerView) {
         this.recyclerView = rv
@@ -39,8 +59,10 @@ class IndicatorBarLayout(context: Context?, attrs: AttributeSet?) : LinearLayout
         addAdapterDataObserver(rv)
         addScrollListener(rv)
         val displayMetrics = resources.displayMetrics
-        this.indicatorSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, INDICATOR_SIZE.toFloat(), displayMetrics).toInt()
-        this.indicatorMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, INDICATOR_MARGIN.toFloat(), displayMetrics).toInt()
+        this.indicatorSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                indicatorSize.toFloat(), displayMetrics).toInt()
+        this.indicatorMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                indicatorMargin.toFloat(), displayMetrics).toInt()
         updateIndicatorsCount(recyclerView.adapter.itemCount)
     }
 
@@ -77,26 +99,36 @@ class IndicatorBarLayout(context: Context?, attrs: AttributeSet?) : LinearLayout
             when {
                 currentPosition < 2 -> {
                     when {
-                        i == currentPosition -> scaleView(getChildAt(i), SCALE_STATE_SELECTED, animate)
-                        currentPosition != i && i <= 2 -> scaleView(getChildAt(i), SCALE_STATE_NORMAL, animate)
-                        currentPosition != i &&i == 3 -> scaleView(getChildAt(i), SCALE_STATE_NORMAL, animate)
-                        currentPosition != i &&i == 4 -> scaleView(getChildAt(i), SCALE_STATE_SMALL, animate)
+                        i == currentPosition -> scaleView(getChildAt(i),
+                                SCALE_STATE_SELECTED, animate)
+                        currentPosition != i && i <= 2 -> scaleView(getChildAt(i),
+                                SCALE_STATE_NORMAL, animate)
+                        currentPosition != i &&i == 3 -> scaleView(getChildAt(i),
+                                SCALE_STATE_NORMAL, animate)
+                        currentPosition != i &&i == 4 -> scaleView(getChildAt(i),
+                                SCALE_STATE_SMALL, animate)
                         else -> getChildAt(i).visibility = View.GONE
                     }
                 }
                 childCount - currentPosition <= 3 ->{
                     when {
-                        i == currentPosition -> scaleView(getChildAt(i), SCALE_STATE_SELECTED, animate)
-                        currentPosition != i && childCount - i <= 4 -> scaleView(getChildAt(i), SCALE_STATE_NORMAL, animate)
-                        currentPosition != i &&childCount - i == 5 -> scaleView(getChildAt(i), SCALE_STATE_SMALL, animate)
+                        i == currentPosition -> scaleView(getChildAt(i),
+                                SCALE_STATE_SELECTED, animate)
+                        currentPosition != i && childCount - i <= 4 -> scaleView(getChildAt(i),
+                                SCALE_STATE_NORMAL, animate)
+                        currentPosition != i &&childCount - i == 5 -> scaleView(getChildAt(i),
+                                SCALE_STATE_SMALL, animate)
                         else -> getChildAt(i).visibility = View.GONE
                     }
                 }
                 else -> {
                     when {
-                        i == currentPosition -> scaleView(getChildAt(i), SCALE_STATE_SELECTED, animate)
-                        abs(i - currentPosition) == 1 -> scaleView(getChildAt(i), SCALE_STATE_NORMAL, animate)
-                        abs(i - currentPosition) == 2 -> scaleView(getChildAt(i), SCALE_STATE_SMALL, animate)
+                        i == currentPosition -> scaleView(getChildAt(i),
+                                SCALE_STATE_SELECTED, animate)
+                        abs(i - currentPosition) == 1 -> scaleView(getChildAt(i),
+                                SCALE_STATE_NORMAL, animate)
+                        abs(i - currentPosition) == 2 -> scaleView(getChildAt(i),
+                                SCALE_STATE_SMALL, animate)
                         else -> getChildAt(i).visibility = View.GONE
                     }
                 }
@@ -120,7 +152,9 @@ class IndicatorBarLayout(context: Context?, attrs: AttributeSet?) : LinearLayout
         val view = IndicatorView(context)
         val params = ViewGroup.MarginLayoutParams(indicatorSize, indicatorSize)
         val adapter = recyclerView.adapter as IndicatorAdapterWIP
-        view.setIndicator(adapter.getItemColor(position),drawable,indicatorSize,PorterDuff.Mode.MULTIPLY)
+        view.setIndicator(adapter.getItemColor(position),defaultDrawable,indicatorSize,
+                PorterDuff.Mode.MULTIPLY)
+
         params.leftMargin = indicatorMargin
         params.rightMargin = indicatorMargin
         params.topMargin = indicatorMargin

@@ -17,7 +17,7 @@ class IndicatorView(context: Context): View(context) {
     var color:Int = Color.BLACK
     var drawable:Drawable? = ContextCompat.getDrawable(context,R.drawable.dot)
     var size = 10
-    var porterDuffMode:PorterDuff.Mode = PorterDuff.Mode.DST_ATOP
+    var porterDuffMode:PorterDuff.Mode = PorterDuff.Mode.SRC_ATOP
 
     constructor(context: Context, attributes: AttributeSet ):this(context)
     {
@@ -65,14 +65,14 @@ class IndicatorView(context: Context): View(context) {
 
         when(widthMode)
         {
-            MeasureSpec.AT_MOST -> {width = widthSize}
-            MeasureSpec.EXACTLY -> {width = min(size,widthSize)}
+            MeasureSpec.EXACTLY -> {width = widthSize}
+            MeasureSpec.AT_MOST -> {width = min(size,widthSize)}
             MeasureSpec.UNSPECIFIED ->{width = size}
         }
         when(heightMode)
         {
-            MeasureSpec.AT_MOST -> {height = heightSize}
-            MeasureSpec.EXACTLY -> {height = min(size,heightSize)}
+            MeasureSpec.EXACTLY -> {height = heightSize}
+            MeasureSpec.AT_MOST -> {height = min(size,heightSize)}
             MeasureSpec.UNSPECIFIED ->{height = size}
         }
         setMeasuredDimension(width,height)

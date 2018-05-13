@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="IndicatorBarLayout">
+        <attr name="currentPosition" format="integer"/>
+        <attr name="maxVisibleItemCount" format="integer"/>
+        <attr name="indicatorMargin" format="integer"/>
+        <attr name="indicatorSize" format="integer"/>
     </declare-styleable>
     <declare-styleable name="IndicatorView">
         <attr name="drawable" format="integer"/>
