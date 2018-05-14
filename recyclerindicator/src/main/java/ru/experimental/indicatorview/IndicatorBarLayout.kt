@@ -80,7 +80,7 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
         removeAllViews()
         var x = 0
         while (x < itemCount) {
-            addIndicator(x)
+            addIndicatorOLD(x)
             x++
         }
     }
@@ -148,7 +148,7 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
         }
     }
 
-    private fun addIndicator(position: Int) {
+    private fun addIndicatorOLD(position: Int) {
         val view = IndicatorView(context)
         val params = ViewGroup.MarginLayoutParams(indicatorSize, indicatorSize)
         val adapter = recyclerView.adapter as IndicatorAdapterWIP
@@ -161,6 +161,24 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
         params.bottomMargin = indicatorMargin
         addView(view, params)
         scaleView(view, SCALE_STATE_NORMAL, false)
+    }
+
+    fun addIndicator(Color:Int?, Drawable:Int?, Size:Int?)
+    {
+        val view = IndicatorView(context)
+        val params = ViewGroup.MarginLayoutParams(indicatorSize, indicatorSize)
+
+        view.setIndicator(Color?:defaultColor,
+                    Drawable?:defaultDrawable,
+                        Size?:indicatorSize,
+                        PorterDuff.Mode.MULTIPLY)
+
+        params.leftMargin = indicatorMargin
+        params.rightMargin = indicatorMargin
+        params.topMargin = indicatorMargin
+        params.bottomMargin = indicatorMargin
+
+        addView(view,params)
     }
 
     private fun scaleView(view: View, scale: Float, animate: Boolean) {
