@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import kotlinx.android.synthetic.main.activity_main.*
+import ru.experimental.indicatorview.IndicatorBarLayout
 import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = ColorAdapter(items)
         val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(recyclerView)
-        this.indicator.attachToRecyclerView(recyclerView)
+        this.indicatorBar.attachToRecyclerView(recyclerView)
         items.add(Color.LTGRAY)
         items.add(Color.MAGENTA)
         recyclerView.adapter.notifyDataSetChanged()

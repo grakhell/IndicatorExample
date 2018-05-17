@@ -18,24 +18,29 @@ import android.widget.LinearLayout
 import ru.mininn.recyclerindicator.R
 import kotlin.math.abs
 
-class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
-    val SCALE_STATE_NORMAL = 0.5f
-    val SCALE_STATE_SELECTED = 1f
-    val SCALE_STATE_SMALL = 0.2f
-    val SCALE_STATE_INVISIBLE = 0.0f
-    //private val INDICATOR_SIZE = 10
-    //private val INDICATOR_MARGIN = 2
+class IndicatorBarLayout : LinearLayout {
 
     private lateinit var recyclerView: RecyclerView
 
-    private var currentPosition = -1
-    private var maxItemCount: Int = 10
-    private var indicatorSize = 5
-    private var indicatorMargin = 2
-    private var defaultDrawable: Int = R.drawable.dot
-    private var defaultColor:Int = Color.BLACK
+    var currentPosition:Int
+    var maxItemCount: Int
+        private set
+    private var indicatorSize:Int
+    private var indicatorMargin:Int
+    private var defaultDrawable:Int = R.drawable.dot
+    private var defaultColor:Int  = Color.BLACK
 
-    constructor(context: Context, attrs: AttributeSet?):this(context)
+    private var animator:IndicatorAnimator = DefaultIndicatorAnimator(this)
+
+    constructor(context: Context?):super(context)
+    {
+        currentPosition = -1
+        maxItemCount = 10
+        indicatorSize = 5
+        indicatorMargin = 2
+    }
+
+    constructor(context: Context, attrs: AttributeSet?):super(context, attrs)
     {
         val a: TypedArray = context.obtainStyledAttributes(
                 attrs,
@@ -55,7 +60,7 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
 
     fun attachToRecyclerView(rv: RecyclerView) {
         this.recyclerView = rv
-        initTransitions()
+        animator.init()
         addAdapterDataObserver(rv)
         addScrollListener(rv)
         val displayMetrics = resources.displayMetrics
@@ -71,7 +76,7 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
             return
         } else {
             currentPosition = position
-            scaleItems(true)
+            animator.animateTransition(true)
         }
 
     }
@@ -82,69 +87,6 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
         while (x < itemCount) {
             addIndicatorOLD(x)
             x++
-        }
-    }
-
-    private fun scaleItems(animate: Boolean) {
-        when {
-            childCount <= 0 -> return
-            childCount <= maxItemCount -> normalScaling(animate)
-            else -> infinityScaling(animate)
-        }
-
-    }
-
-    private fun infinityScaling(animate: Boolean) {
-        for (i in 0 until childCount) {
-            when {
-                currentPosition < 2 -> {
-                    when {
-                        i == currentPosition -> scaleView(getChildAt(i),
-                                SCALE_STATE_SELECTED, animate)
-                        currentPosition != i && i <= 2 -> scaleView(getChildAt(i),
-                                SCALE_STATE_NORMAL, animate)
-                        currentPosition != i &&i == 3 -> scaleView(getChildAt(i),
-                                SCALE_STATE_NORMAL, animate)
-                        currentPosition != i &&i == 4 -> scaleView(getChildAt(i),
-                                SCALE_STATE_SMALL, animate)
-                        else -> getChildAt(i).visibility = View.GONE
-                    }
-                }
-                childCount - currentPosition <= 3 ->{
-                    when {
-                        i == currentPosition -> scaleView(getChildAt(i),
-                                SCALE_STATE_SELECTED, animate)
-                        currentPosition != i && childCount - i <= 4 -> scaleView(getChildAt(i),
-                                SCALE_STATE_NORMAL, animate)
-                        currentPosition != i &&childCount - i == 5 -> scaleView(getChildAt(i),
-                                SCALE_STATE_SMALL, animate)
-                        else -> getChildAt(i).visibility = View.GONE
-                    }
-                }
-                else -> {
-                    when {
-                        i == currentPosition -> scaleView(getChildAt(i),
-                                SCALE_STATE_SELECTED, animate)
-                        abs(i - currentPosition) == 1 -> scaleView(getChildAt(i),
-                                SCALE_STATE_NORMAL, animate)
-                        abs(i - currentPosition) == 2 -> scaleView(getChildAt(i),
-                                SCALE_STATE_SMALL, animate)
-                        else -> getChildAt(i).visibility = View.GONE
-                    }
-                }
-            }
-
-        }
-    }
-
-    private fun normalScaling(animate: Boolean) {
-
-        for (i in 0 until childCount) {
-            if (currentPosition == i) {
-                scaleView(getChildAt(i), SCALE_STATE_SELECTED, animate)
-            } else {
-                scaleView(getChildAt(i), SCALE_STATE_NORMAL, animate)
-            }
         }
     }
 
@@ -160,7 +102,7 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
         params.topMargin = indicatorMargin
         params.bottomMargin = indicatorMargin
         addView(view, params)
-        scaleView(view, SCALE_STATE_NORMAL, false)
+        animator.animateItem(view, animator.SCALE_STATE_NORMAL, false)
     }
 
     fun addIndicator(Color:Int?, Drawable:Int?, Size:Int?)
@@ -181,38 +123,19 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
         addView(view,params)
     }
 
-    private fun scaleView(view: View, scale: Float, animate: Boolean) {
-        if (scale == SCALE_STATE_INVISIBLE) {
-            view.visibility = View.GONE
-            view.animate().scaleY(scale).scaleX(scale)
-        } else {
-            view.visibility = View.VISIBLE
-            if (animate) {
-                view.animate().scaleY(scale).scaleX(scale)
-            } else {
-                view.scaleX = scale
-                view.scaleY = scale
-            }
-        }
-    }
-
-    private fun initTransitions() {
-        val transition = TransitionSet()
-        transition.ordering = TransitionSet.ORDERING_TOGETHER
-        transition.addTransition(ChangeBounds())
-        transition.addTransition(Fade())
-        TransitionManager.beginDelayedTransition(this, transition)
-    }
-
     private fun addScrollListener(recyclerView: RecyclerView) {
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
-                val position = if ((recyclerView?.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() > currentPosition) {
-                    (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+                val position = if ((recyclerView?.layoutManager
+                                as LinearLayoutManager).findFirstVisibleItemPosition()
+                        > currentPosition) {
+                    (recyclerView.layoutManager as LinearLayoutManager)
+                            .findLastVisibleItemPosition()
                 } else {
-                    (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                    (recyclerView.layoutManager as LinearLayoutManager)
+                            .findFirstVisibleItemPosition()
                 }
                 if (position != currentPosition && position >= 0) {
                     setPosition(position)
@@ -222,10 +145,12 @@ class IndicatorBarLayout(context: Context?) : LinearLayout(context) {
     }
 
     private fun addAdapterDataObserver(recyclerView: RecyclerView) {
-        recyclerView.adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        recyclerView.adapter.registerAdapterDataObserver(
+                object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
                 super.onChanged()
-                currentPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                currentPosition = (recyclerView.layoutManager
+                        as LinearLayoutManager).findFirstVisibleItemPosition()
                 updateIndicatorsCount(recyclerView.adapter.itemCount)
             }
 

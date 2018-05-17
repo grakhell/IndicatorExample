@@ -8,10 +8,14 @@
     tools:context=".MainActivity">
 
     <ru.experimental.indicatorview.IndicatorBarLayout
-        android:id="@+id/indicator"
+        android:id="@+id/indicatorBar"
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:gravity="center" />
+        android:gravity="center"
+        app:currentPosition="1"
+        app:maxVisibleItemCount="5"
+        app:indicatorMargin="4"
+        app:indicatorSize="10"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler"
@@ -20,34 +24,5 @@
         android:layout_weight="1" >
 
     </android.support.v7.widget.RecyclerView>
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="25dp">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <ru.experimental.indicatorview.IndicatorView
-                android:id="@+id/indicatorView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:drawColor="@android:color/holo_blue_light"
-                app:drawable="@drawable/ic_baseline_track_changes_24px"
-                app:size="50" />
-
-            <ru.experimental.indicatorview.IndicatorView
-                android:id="@+id/indicatorView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:drawColor="@android:color/holo_blue_dark"
-                app:drawable="@drawable/ic_baseline_explore_24px"
-                app:size="50" />
-        </LinearLayout>
-    </HorizontalScrollView>
 
 </LinearLayout>

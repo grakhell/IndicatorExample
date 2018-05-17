@@ -12,14 +12,21 @@ import android.view.View
 import ru.mininn.recyclerindicator.R
 import kotlin.math.min
 
-class IndicatorView(context: Context): View(context) {
+class IndicatorView: View {
 
-    var color:Int = Color.BLACK
-    var drawable:Drawable? = ContextCompat.getDrawable(context,R.drawable.dot)
-    var size = 10
+    var color:Int
+    var drawable:Drawable?
+    var size:Int
     var porterDuffMode:PorterDuff.Mode = PorterDuff.Mode.SRC_ATOP
 
-    constructor(context: Context, attributes: AttributeSet ):this(context)
+    constructor(context: Context):super(context)
+    {
+        color = Color.BLACK
+        drawable = ContextCompat.getDrawable(context,R.drawable.dot)
+        size = 10
+    }
+
+    constructor(context: Context, attributes: AttributeSet ):super(context, attributes)
     {
         val a:TypedArray = context.obtainStyledAttributes(
                 attributes,
